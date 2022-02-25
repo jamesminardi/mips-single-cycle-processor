@@ -14,8 +14,14 @@ use IEEE.std_logic_1164.all;
 
 package MIPS_types is
 
-  -- Example Constants. Declare more as needed
+  -- Instruction field width constants
+  constant FUNCT_WIDTH : integer := 6;
+  constant OPCODE_WIDTH : integer := 6;
+
+  -- Width of data
   constant DATA_WIDTH : integer := 32;
+
+  -- Width of addresses
   constant ADDR_WIDTH : integer := 10;
 
   -- Width of ALU Op out of Control Unit and Action for ALU
