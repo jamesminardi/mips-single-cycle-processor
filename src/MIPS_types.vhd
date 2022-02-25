@@ -18,6 +18,9 @@ package MIPS_types is
   constant DATA_WIDTH : integer := 32;
   constant ADDR_WIDTH : integer := 10;
 
+  -- Width of ALU Op out of Control Unit and Action for ALU
+  constant ALU_OP_WIDTH : integer := 4;
+
   -- Example record type. Declare whatever types you need here
   type control_t is record
     reg_wr : std_logic;
