@@ -21,7 +21,7 @@ use work.MIPS_types.all;
 entity ALU_control is
     port (
         -- ALU Op given by Control Unit
-        iOP : in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
+        iALUOp : in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
         -- Instruction: "Funct" field
         iFunct : in std_logic_vector(FUNCT_WIDTH - 1 downto 0);
@@ -51,7 +51,7 @@ begin
         "1011" when "000011", -- SRA
         "1100" when "101010", -- SLT
         "0000" when others;
-    with iOP select
+    with iALUOp select
         oAction <=
         s_oAction when "0000", -- Funct if Opcode == "000000"
         iOP when others; -- Use OPcode instruction if opcode != "000000"
