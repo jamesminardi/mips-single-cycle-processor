@@ -5,6 +5,8 @@
 -- DESCRIPTION: This file contains an implementation of an ALU Control
 -- module that selects the operation to be used by the ALU. Abstracts the
 -- funct field of the instruction from the Control Unit.
+--
+-- REQUIRES: MIPS_types.vhd
 -------------------------------------------------------------------------
 
 -- library declaration
@@ -22,15 +24,37 @@ entity ALU_control is
         iOP : in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
         -- Instruction: "Funct" field
-        iFunct : in std_logic_vector(FUNCT_WIDTH downto 0);
+        iFunct : in std_logic_vector(FUNCT_WIDTH - 1 downto 0);
 
         -- Action for ALU to do
-        oAction : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
-    );
+        oAction : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0));
 end ALU_control;
 
-architecture dataflow of ALU_control
+architecture dataflow of ALU_control is
 
+-- Carries action selected from funct mux to 0000 of ALUOp mux
+signal s_oAction : std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
+begin
+    with iFunct select
+        s_oAction <=
+        "0010" when "100000", -- Add
+        "0010" when "100001", -- Add (U)
+        "0011" when "100010", -- Sub
+        "0011" when "100011", -- Sub (U)
+        "0100" when "100100", -- And
+        "0101" when "100101", -- Or
+        "0110" when "100111", -- Nor
+        "0111" when "100110", -- Xor
+        "1000" when "000000", -- SLL
+        "1010" when "000010", -- SRL
+        "1011" when "000011", -- SRA
+        "1100" when "101010", -- SLT
+        "0000" when others;
+    with iOP select
+        oAction <=
+        s_oAction when "0000", -- Funct if Opcode == "000000"
+        iOP when others; -- Use OPcode instruction if opcode != "000000"
 
+end dataflow;
 
