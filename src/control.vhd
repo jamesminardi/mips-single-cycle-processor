@@ -30,7 +30,7 @@ entity control is
         oMemWrite   : out std_logic; -- Enable writing to memory in dmem
         oJump       : out std_logic; -- Selects setting PC to jump value or not
         oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
-        oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0)_; -- Selects ALU operation or to select from funct field
+        oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0)); -- Selects ALU operation or to select from funct field
 end control;
 
 architecture dataflow of control is
@@ -54,6 +54,7 @@ begin
             '-' when "000101",
             '-' when "000010", -- J
             '1' when others;
+    with iOpcode select
         oALUSrc <=
             '0' when "000000",
             '1' when "001000",
@@ -69,6 +70,7 @@ begin
             '0' when "000101",
             '-' when "000010", -- J
             '0' when others;
+    with iOpcode select
         oMemtoReg <=
             '0' when "000000",
             '0' when "001000",
@@ -84,6 +86,7 @@ begin
             '-' when "000101",
             '-' when "000010", -- J
             '0' when others;
+    with iOpcode select
         oRegWrite <=
             '1' when "000000",
             '1' when "001000",
@@ -99,6 +102,7 @@ begin
             '0' when "000101",
             '0' when "000010", -- J
             '1' when others;
+    with iOpcode select
         oMemRead <=
             '0' when "000000",
             '0' when "001000",
@@ -114,6 +118,7 @@ begin
             '0' when "000101",
             '0' when "000010", -- J
             '0' when others;
+    with iOpcode select
         oMemWrite <=
             '0' when "000000",
             '0' when "001000",
@@ -129,6 +134,7 @@ begin
             '0' when "000101",
             '0' when "000010", -- J
             '0' when others;
+    with iOpcode select
         oJump <=
             '0' when "000000",
             '0' when "001000",
@@ -144,6 +150,7 @@ begin
             '0' when "000101",
             '1' when "000010", -- J
             '0' when others;
+    with iOpcode select
         oBranch <=
             '0' when "000000",
             '0' when "001000",
@@ -159,6 +166,7 @@ begin
             '1' when "000101",
             '-' when "000010", -- J
             '0' when others;
+    with iOpcode select
         oALUOp <=
             "0000" when "000000",
             "0010" when "001000",
