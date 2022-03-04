@@ -20,6 +20,8 @@ package MIPS_types is
 
   -- Width of data
   constant DATA_WIDTH : integer := 32;
+  -- Select bits to select from data_width
+  constant DATA_SELECT : integer := 5;
 
   -- Width of addresses
   constant ADDR_WIDTH : integer := 10;

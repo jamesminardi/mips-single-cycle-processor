@@ -36,11 +36,11 @@ end control;
 architecture dataflow of control is
 
 
-    -- Doesn't include JAL
+    -- Doesn't include JAL & others
 begin
     with iOpcode select
         oRegDst <=
-            '1' when "000000",
+            '1' when "000000", -- R-type
             '1' when "001000",
             '1' when "001001",
             '1' when "001100",
@@ -52,7 +52,7 @@ begin
             '-' when "101011",
             '-' when "000100",
             '-' when "000101",
-            '-' when "000010", -- J
+            '-' when "000010", -- Jump
             '1' when others;
     with iOpcode select
         oALUSrc <=
