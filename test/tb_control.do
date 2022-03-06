@@ -1,6 +1,6 @@
-vcom -reportprogress 300 -work work /home/jminardi/cpre381/cpre381-toolflow/proj/src/MIPS_types.vhd
-vcom -reportprogress 300 -work work /home/jminardi/cpre381/cpre381-toolflow/proj/src/control.vhd
-vcom -reportprogress 300 -work work /home/jminardi/cpre381/cpre381-toolflow/proj/test/tb_control.vhd
+vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/src/MIPS_types.vhd
+vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/src/control.vhd
+vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/test/tb_control.vhd
 
 
 vsim work.tb_control -voptargs=+acc
