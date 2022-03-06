@@ -48,16 +48,16 @@ begin
         s_iA <= x"F1E2D3C4";
         s_iLeft <= '0';
         s_iArithmetic <= '0';
-        s_iShamt <= "00100" -- Shift 4
+        s_iShamt <= "00100"; -- Shift 4
         -- Expected:
-        --  oResult = x"0F1E2D3C4"
+        --  oResult = x"0F1E2D3C"
         wait for 100 ns;
 
 -- Test shift right logical 2
         s_iA <= x"F1E2D3C4"; -- 1111_0001_1110_0010_1101_0011_1100_0100
         s_iLeft <= '0';
         s_iArithmetic <= '0';
-        s_iShamt <= "00011" -- Shift 3
+        s_iShamt <= "00011"; -- Shift 3
         -- Expected:
         --  oResult = x"1E3C5A78", 0001_1110_0011_1100_0101_1010_0111_1000
         wait for 100 ns;
@@ -66,18 +66,18 @@ begin
         s_iA <= x"F1E2D3C4";
         s_iLeft <= '0';
         s_iArithmetic <= '1';
-        s_iShamt <= "00100" -- Shift 4
+        s_iShamt <= "00100"; -- Shift 4
         -- Expected:
-        --  oResult = x"FF1E2D3C4"
+        --  oResult = x"FF1E2D3C"
         wait for 100 ns;
 
 -- Test shift left logical
-        s_iA <= x"F1E2D3C4";
-        s_iLeft <= '0';
+        s_iA <= x"F1E2D3C4"; -- x"23CB478F" backwards
+        s_iLeft <= '1';
         s_iArithmetic <= '0';
-        s_iShamt <= "00100" -- Shift 4
+        s_iShamt <= "00100"; -- Shift 4
         -- Expected:
-        --  oResult = x"1E2D3C40"
+        --  oResult = x"3CB478F0"
         wait for 100 ns;
 
     end process;
