@@ -51,7 +51,7 @@ begin
 		-- When subtracting, iSubtract is 1, so add that to the adder
 		iCin 	=> iSubtract,		
 		oSum 	=> oSum,
-		oCout 	=> oCout
+		oCout 	=> oCout,
 		oCout2 	=> oCout2);
 
 
