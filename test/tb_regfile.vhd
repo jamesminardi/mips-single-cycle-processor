@@ -4,6 +4,7 @@
 -------------------------------------------------------------------------
 -- DESCRIPTION: This file contains a simple VHDL testbench for a mips
 -- register file.
+-- RUN: 1200
 -------------------------------------------------------------------------
 
 -- library declaration
@@ -70,7 +71,8 @@ begin
 process
 	begin
 	
-	--wait for gCLK_HPER/2; -- for waveform clarity, I prefer not to change inputs on clk edges	
+	--wait for gCLK_HPER/2; -- for waveform clarity, I prefer not to change inputs on clk edges
+	s_RST <= '0';
 	
 -- Test case 1:
 	-- Load 5 into $0 and read $0
@@ -118,7 +120,7 @@ process
 	-- Set Write Enable = 0, and Load data to x"AAAAAAAA" into $1 and read $1.
 	si_Rs <= "00000"; -- Output the data of this register
 	si_Rt <= "00000"; -- Output the data of this register
-	s_We <= '0'; -- If 1,
+	s_We <= '1'; -- If 1,
 	s_Wd <= x"AAAAAAAA"; -- Write this
 	s_Rd <= "00001"; -- To this register
 	wait for gCLK_HPER*2;
@@ -128,6 +130,22 @@ process
 	wait for gCLK_HPER*2;
 	-- Expected: o_Rs and o_Rt should both be x"AAAAAAAA" after this test
 	
+-- Test case 5: Test RESET
+	wait for gCLK_HPER*2;
+	s_RST <= '1';
+	wait for gCLK_HPER*2;
+	si_Rs <= "00001"; -- Output the data of this register
+	si_Rt <= "00001"; -- Output the data of this register
+	s_We <= '0'; -- Turn off writing
+	s_RST <= '0';
+	wait for gCLK_HPER*2;
+	-- Expected: o_Rs and o_Rt should both be 0 after this test
+
+
+
+
+
+
 end process;
 end tb;
 		
