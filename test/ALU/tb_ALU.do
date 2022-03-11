@@ -12,4 +12,4 @@ vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/src/ALU/barr
 vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/src/ALU/ALU.vhd
 vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/test/ALU/tb_ALU.vhd
 
-vsim work.tb_barrel_shifter -voptargs=+acc
+vsim work.tb_ALU -voptargs=+acc
