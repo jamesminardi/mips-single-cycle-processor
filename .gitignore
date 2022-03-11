@@ -3,3 +3,5 @@ single-cycle-diagram
 **/transcript
 **/vsim.*
 **/work/
+**/*.ini
+**/*.opt
