@@ -77,6 +77,92 @@ signal s_Ovfl			: std_logic;
 -- TODO: You may add any additional signals or components your implementation 
 --       requires below this comment
 
+-- ### Control signals
+signal s_Opcode 	: std_logic_vector(OPCODE_WIDTH - 1 downto 0);
+signal s_RegDst 	: std_logic_vector(DATA_SELECT - 1 downto 0);
+signal s_ALUSrc 	: std_logic;
+signal s_MemtoReg 	: std_logic;
+signal s_RegWrite 	: std_logic;
+signal s_MemRead 	: std_logic;
+signal s_MemWrite 	: std_logic;
+signal s_Jump 		: std_logic;
+signal s_Branch 	: std_logic;
+signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
+
+
+signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); -- Input into regfile i_Rd
+
+	component regfile is
+		generic(N 	  : integer;
+				REG_W : integer);
+		port(
+			i_CLK : in std_logic;		-- Clock input
+			i_RST : in std_logic;		-- Reset
+			i_We : in std_logic;		-- Write enable
+			i_Rs : in std_logic_vector(REG_W - 1 downto 0); -- Register to read 1
+			i_Rt : in std_logic_vector(REG_W - 1 downto 0); -- Register to read 2
+			i_Rd : in std_logic_vector(REG_W - 1 downto 0); -- Reg being written to
+			i_Wd : in std_logic_vector(N -1 downto 0);		-- Data to write to i_Rd
+			o_Rs : out std_logic_vector(N -1 downto 0);		-- i_rs data output
+			o_Rt : out std_logic_vector(N -1 downto 0));		-- i_rt data output
+	end component;
+
+	component extender is
+		port(
+			i_D : in std_logic_vector((DATA_WIDTH/2)-1 downto 0);
+			i_Extend : in std_logic;
+			o_F : out std_logic_vector(DATA_WIDTH-1 downto 0));
+	end component;
+
+	component control is
+		port (
+			iOpcode     : in std_logic_vector(OPCODE_WIDTH -1 downto 0); -- 6 MSB of 32bit instruction
+			-- iALUZero : in std_logic; -- TODO: Zero flag from ALU for PC src?
+			-- oPCSrc : in std_logic; -- TODO: Selects using PC+4 or branch addy
+			oRegDst     : out std_logic; -- Selects r-type vs i-type write register
+			oALUSrc     : out std_logic; -- Selects source for second ALU input (Rt vs Imm)
+			oMemtoReg   : out std_logic; -- Selects ALU result or memory result to reg write
+			oRegWrite   : out std_logic; -- Enable register write in datapath->registerfile
+			oMemRead    : out std_logic; -- Enable reading of memory in dmem
+			oMemWrite   : out std_logic; -- Enable writing to memory in dmem
+			oJump       : out std_logic; -- Selects setting PC to jump value or not
+			oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
+			oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0)); -- Selects ALU operation or to select from funct field
+	end component;
+
+	component ALU_control is
+		port (
+			-- ALU Op given by Control Unit
+			iALUOp : in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
+	
+			-- Instruction: "Funct" field
+			iFunct : in std_logic_vector(FUNCT_WIDTH - 1 downto 0);
+	
+			-- Action for ALU to do
+			oAction : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0));
+	end component;
+	
+	component ALU is
+		port(
+			iA 		: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+			iB 		: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+			iALUOp 	: in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
+			oResult : out std_logic_vector(DATA_WIDTH - 1 downto 0);
+			oCout 	: out std_logic;
+			oOverflow : out std_logic;
+			oZero 	: out std_logic);
+	end component;
+
+	component mux2t1_N is
+		generic(N : integer := 32); -- Generic of type integer for input/output data width. Default value is 32.
+		port(
+			i_S 	: in std_logic;
+			i_D0	: in std_logic_vector(N-1 downto 0);
+			i_D1	: in std_logic_vector(N-1 downto 0);
+			o_O 	: out std_logic_vector(N-1 downto 0));
+	end component;
+
+
 
 begin
 
@@ -113,7 +199,15 @@ begin
 		we   => s_DMemWr,
 		q    => s_DMemOut);
 
-
+	Write_Reg_Mux: mux2t1_N
+	generic map(
+		N => DATA_WIDTH)
+	port map(
+		i_S  =>
+		i_D0 =>
+		i_D1 =>
+		o_O  => );
+	
 
 -- TODO: Ensure that s_Halt is connected to an output control signal produced
 --       from decoding the Halt instruction (Opcode: 01 0100)
