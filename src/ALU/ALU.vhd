@@ -108,7 +108,7 @@ begin
             s_set_less_than_result when "11--",
             s_barrel_shifter_result when others;
     
-    -- Set result bit
+    -- Set zero bit
     with oResult select
         oZero <=
             '1' when x"00000000",

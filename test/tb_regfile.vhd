@@ -17,7 +17,7 @@ entity tb_regfile is
 			gCLK_HPER: time := 50 ns);
 end tb_regfile;
 
-
+-- TODO: Add RST to tests
 architecture tb of tb_regfile is
 
   	-- Calculate the clock period as twice the half-period
@@ -26,6 +26,7 @@ architecture tb of tb_regfile is
 	component regfile is
 		port(
 			i_CLK	: in  std_logic;	-- Clock input
+			i_RST	: in  std_logic;	-- Reset
 			i_We	: in  std_logic;	-- Write enable
 			i_Rs	: in  std_logic_vector(REG_W - 1 downto 0); -- Register to read 1
 			i_Rt	: in  std_logic_vector(REG_W - 1 downto 0); -- Register to read 2
@@ -36,6 +37,7 @@ architecture tb of tb_regfile is
 	end component;
 
 signal s_CLK : std_logic := '0';
+signal s_RST : std_logic := '0';
 signal s_We : std_logic := '0';
 signal s_Wd : std_logic_vector(N-1 downto 0) := (others=>'0');
 signal s_Rd : std_logic_vector(REG_W - 1 downto 0) := (others=>'0');
@@ -46,6 +48,7 @@ begin
 	DUT: regfile
 	port map (
 		i_CLK => s_CLK,
+		i_RST => s_RST,
 		i_We  => s_We,
 		i_Rs  => si_Rs,
 		i_Rt  => si_Rt,
