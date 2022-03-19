@@ -36,6 +36,8 @@ entity MIPS_Processor is
 end MIPS_Processor;
 
 architecture structure of MIPS_Processor is
+
+
 -- Required data memory signals
 signal s_DMemWr			: std_logic; -- TODO: use this signal as the final active high data memory write enable signal
 signal s_DMemAddr		: std_logic_vector(N-1 downto 0); -- TODO: use this signal as the final data memory address input
@@ -57,7 +59,6 @@ signal s_Inst        	: std_logic_vector(N-1 downto 0); -- TODO: use this signal
 -- program execution has completed. (Opcode: 01 0100)
 signal s_Halt			: std_logic;
 
-
 -- Required overflow signal -- for overflow exception detection
 -- TODO: this signal indicates an overflow exception would have
 -- been initiated
@@ -77,22 +78,37 @@ signal s_Ovfl			: std_logic;
 -- TODO: You may add any additional signals or components your implementation 
 --       requires below this comment
 
--- ### Control signals
-signal s_Opcode 	: std_logic_vector(OPCODE_WIDTH - 1 downto 0);
+--------------------------  CONTROL OUTPUT SIGNALS  --------------------------
 signal s_RegDst 	: std_logic_vector(DATA_SELECT - 1 downto 0);
 signal s_ALUSrc 	: std_logic;
 signal s_MemtoReg 	: std_logic;
 signal s_RegWrite 	: std_logic;
 signal s_MemRead 	: std_logic;
 signal s_MemWrite 	: std_logic;
+signal s_SignExt	: std_logic;
 signal s_Jump 		: std_logic;
 signal s_Branch 	: std_logic;
 signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
 
-signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); -- Input into regfile i_Rd
+--------------------------  INSTRUCTION SIGNALS  --------------------------
+
+signal s_instr_Opcode 	: std_logic_vector(OPCODE_WIDTH - 1 downto 0); -- Opcode
+signal s_instr_Rs		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rs
+signal s_instr_Rt		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rt
+signal s_Instr_Rd		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rd
+signal s_instr_Shamt	: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Shift amount
+signal s_instr_Funct	: std_logic_vector(FUNCT_WIDTH  - 1 downto 0); -- Funct code
+signal s_instr_imm16	: std_logic_vector(DATA_WIDTH/2 - 1 downto 0); -- Imm field for I-type instruction
+signal s_instr_imm32	: std_logic_vector(DATA_WIDTH   - 1 downto 0); -- Immediate after extension
+signal s_instr_Addr		: std_logic_vector(JADDR_WIDTH  - 1 downto 0); -- Addr width for jump instruction
+
+--------------------------  GENERAL SIGNALS  --------------------------
+signal s_UpdatePC : std_logic_vector(DATA_WIDTH - 1 downto 0);			-- Input into PC register
+signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); 	-- Input into regfile i_Rd
 	
 
+--------------------------  COMPONENTS  --------------------------
 	component pc_register is
 		generic(N : integer);
 			port(
@@ -136,6 +152,7 @@ signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); -- Input in
 			oRegWrite   : out std_logic; -- Enable register write in datapath->registerfile
 			oMemRead    : out std_logic; -- Enable reading of memory in dmem
 			oMemWrite   : out std_logic; -- Enable writing to memory in dmem
+			oSignExt	: out std_logic; -- Whether to sign extend the immediate or not
 			oJump       : out std_logic; -- Selects setting PC to jump value or not
 			oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
 			oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0)); -- Selects ALU operation or to select from funct field
@@ -177,6 +194,17 @@ signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); -- Input in
 
 begin
 
+
+	--------------------------  ASSIGN INSTRUCTION FIELDS  --------------------------	
+	s_instr_Opcode	(OPCODE_WIDTH - 1 downto 0) <= s_Inst(31 downto 26);
+	s_instr_Rs		(DATA_SELECT  - 1 downto 0) <= s_Inst(25 downto 21);
+	s_instr_Rt		(DATA_SELECT  - 1 downto 0) <= s_Inst(20 downto 16);
+	s_Instr_Rd		(DATA_SELECT  - 1 downto 0) <= s_Inst(15 downto 11);
+	s_instr_Shamt	(DATA_SELECT  - 1 downto 0) <= s_Inst(10 downto 6);
+	s_instr_Funct	(FUNCT_WIDTH  - 1 downto 0) <= s_Inst(5  downto 0);
+	s_instr_imm16	(DATA_WIDTH/2 - 1 downto 0) <= s_Inst(15 downto 0);
+	s_instr_Addr	(JADDR_WIDTH  - 1 downto 0) <= s_Inst(25 downto 0);
+
 	-- TODO: This is required to be your final input to your instruction memory.
 	-- This provides a feasible method to externally load the memory module which
 	-- means that the synthesis tool must assume it knows nothing about the values
@@ -209,6 +237,59 @@ begin
 		data => s_DMemData,
 		we   => s_DMemWr,
 		q    => s_DMemOut);
+
+	PC_Reg: pc_register
+	generic map(
+		N => DATA_WIDTH)
+	port map (
+		i_CLK => iCLK,
+		i_RST => iRST,
+		i_D => s_UpdatePC,
+		o_Q => s_NextInstrAddr);
+
+
+		signal s_instr_Opcode 	: std_logic_vector(OPCODE_WIDTH - 1 downto 0); -- Opcode
+		signal s_instr_Rs		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rs
+		signal s_instr_Rt		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rt
+		signal s_Instr_Rd		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rd
+		signal s_instr_Shamt	: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Shift amount
+		signal s_instr_Funct	: std_logic_vector(FUNCT_WIDTH  - 1 downto 0); -- Funct code
+		signal s_instr_imm16	: std_logic_vector(DATA_WIDTH/2 - 1 downto 0); -- Imm field for I-type instruction
+		signal s_instr_imm32	: std_logic_vector(DATA_WIDTH   - 1 downto 0); -- Immediate after extension
+		signal s_instr_Addr		: std_logic_vector(JADDR_WIDTH  - 1 downto 0); -- Addr width for jump instruction
+
+
+signal s_RegDst 	: std_logic_vector(DATA_SELECT - 1 downto 0);
+signal s_ALUSrc 	: std_logic;
+signal s_MemtoReg 	: std_logic;
+signal s_RegWrite 	: std_logic;
+signal s_MemRead 	: std_logic;
+signal s_MemWrite 	: std_logic;
+signal s_Jump 		: std_logic;
+signal s_Branch 	: std_logic;
+signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
+
+	Control: control
+	port map (
+		iOpcode     => s_instr_Opcode,
+		-- iALUZero =>
+		-- oPCSrc   =>
+		oRegDst     => s_RegDst,
+		oALUSrc     => s_ALUSrc,
+		oMemtoReg   => s_MemtoReg,
+		oRegWrite   => s_RegWrite,
+		oMemRead    => s_MemRead,
+		oMemWrite   => s_MemWrite,
+		oSignExt	=> s_SignExt,
+		oJump       => s_Jump,
+		oBranch     => s_Branch,
+		oALUOp      => s_ALUOp);
+
+	Sign_Extender: extender
+	port map(
+		i_D 	 => s_instr_imm16,
+		i_Extend => s_SignExt,
+		o_F 	 => s_instr_imm32);
 
 	Write_Reg_Mux: mux2t1_N
 	generic map(

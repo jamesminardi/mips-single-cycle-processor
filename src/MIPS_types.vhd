@@ -25,7 +25,6 @@ package MIPS_types is
 
   -- Width of addresses
   constant ADDR_WIDTH : integer := 10;
-
   -- Width of ALU Op out of Control Unit and Action for ALU
   constant ALU_OP_WIDTH : integer := 4;
 
