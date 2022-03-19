@@ -17,6 +17,7 @@ package MIPS_types is
   -- Instruction field width constants
   constant FUNCT_WIDTH : integer := 6;
   constant OPCODE_WIDTH : integer := 6;
+  constant JADDR_WIDTH : integer := 26;
 
   -- Width of data
   constant DATA_WIDTH : integer := 32;
