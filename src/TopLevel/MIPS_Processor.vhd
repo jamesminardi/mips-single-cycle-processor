@@ -91,6 +91,17 @@ signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
 
 signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); -- Input into regfile i_Rd
+	
+
+	component pc_register is
+		generic(N : integer);
+			port(
+				i_CLK	: in std_logic;     -- Clock input
+				i_RST	: in std_logic;     -- Reset input
+	       		i_D		: in std_logic_vector(N-1 downto 0);     -- Data value input
+	       		o_Q		: out std_logic_vector(N-1 downto 0));   -- Data value output
+	end component;
+
 
 	component regfile is
 		generic(N 	  : integer;
