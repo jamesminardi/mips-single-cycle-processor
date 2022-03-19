@@ -28,6 +28,7 @@ entity control is
         oRegWrite   : out std_logic; -- Enable register write in datapath->registerfile
         oMemRead    : out std_logic; -- Enable reading of memory in dmem
         oMemWrite   : out std_logic; -- Enable writing to memory in dmem
+        oSignExt    : out std_logic; -- Sign extend immediate value
         oJump       : out std_logic; -- Selects setting PC to jump value or not
         oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
         oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0)); -- Selects ALU operation or to select from funct field
@@ -133,6 +134,17 @@ begin
             '0' when "000100",
             '0' when "000101",
             '0' when "000010", -- J
+            '0' when others;
+    with iOpcode select
+        oSignExt <=
+            '1' when "001000",
+            '1' when "001001",
+            '0' when "001100",
+            '1' when "100011",
+            '0' when "001110",
+            '0' when "001101",
+            '1' when "001010",
+            '1' when "101011",
             '0' when others;
     with iOpcode select
         oJump <=
