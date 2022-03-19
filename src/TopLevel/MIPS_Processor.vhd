@@ -247,28 +247,6 @@ begin
 		i_D => s_UpdatePC,
 		o_Q => s_NextInstrAddr);
 
-
-		signal s_instr_Opcode 	: std_logic_vector(OPCODE_WIDTH - 1 downto 0); -- Opcode
-		signal s_instr_Rs		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rs
-		signal s_instr_Rt		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rt
-		signal s_Instr_Rd		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rd
-		signal s_instr_Shamt	: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Shift amount
-		signal s_instr_Funct	: std_logic_vector(FUNCT_WIDTH  - 1 downto 0); -- Funct code
-		signal s_instr_imm16	: std_logic_vector(DATA_WIDTH/2 - 1 downto 0); -- Imm field for I-type instruction
-		signal s_instr_imm32	: std_logic_vector(DATA_WIDTH   - 1 downto 0); -- Immediate after extension
-		signal s_instr_Addr		: std_logic_vector(JADDR_WIDTH  - 1 downto 0); -- Addr width for jump instruction
-
-
-signal s_RegDst 	: std_logic_vector(DATA_SELECT - 1 downto 0);
-signal s_ALUSrc 	: std_logic;
-signal s_MemtoReg 	: std_logic;
-signal s_RegWrite 	: std_logic;
-signal s_MemRead 	: std_logic;
-signal s_MemWrite 	: std_logic;
-signal s_Jump 		: std_logic;
-signal s_Branch 	: std_logic;
-signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
-
 	Control: control
 	port map (
 		iOpcode     => s_instr_Opcode,
