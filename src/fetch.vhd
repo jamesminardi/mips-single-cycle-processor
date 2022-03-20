@@ -56,7 +56,7 @@ architecture behavior of fetch is
 	end component;
 	
     --add this section for the sigals and begin stuff
-signal s_PCPlus4 		: std_logic_vector(DATA_SELECT-1 downto 0);
+signal s_PCPlus4 		: std_logic_vector(DATA_SELECT - 1 downto 0);
 signal s_BranchImmShift : std_logic_vector(DATA_SELECT - 1 downto 0);
 signal s_JumpImmShift 	: std_logic_vector(DATA_SELECT - 1 downto 0); -- Only 28 lsb are used
 	        
@@ -65,7 +65,7 @@ begin
 	--generic(int : integer := 4);
 	--G_NBit_MUX: for i in 0 to 31 generate -- there are 32 registers that will be tried in the mux
 	
-	Add4: full_adder_N --does the pc+4
+	Add4: full_adder_N
 	port map (
 			iA		=> i_Addr, 		-- PC input
 			iB		=> x"00000004", -- 4
@@ -74,7 +74,7 @@ begin
 			oCout2	=> open,
 			oCout	=> open);
 
-	Shift_JAddr: barrel_shifter --shift to jump MUX
+	Shift_JAddr: barrel_shifter
 		port map (
 			iA         		=> "000000" & i_JumpImm,
 			iLeft      		=> '1',
@@ -82,15 +82,16 @@ begin
 			iShamt     		=> "00010",
 			oResult    		=> s_JumpImmShift);
 
-	Shift_BAddr: barrel_shifter --shift to ALU
+	Shift_BAddr: barrel_shifter
 		port map (
 				iA           => i_BranchImm,
 				iLeft        => '1',
 				iArithmetic  => '0',
 				iShamt       => "00010",
-				oResult      => s_BranchImmShift); --output	
+				oResult      => s_BranchImmShift);
 
-	ADD_ALU: full_adder_N --(pc+4) + shift2 to branch mux
+	ADD_ALU: full_adder_N
+	 --(pc+4) + shift2 to branch mux
 		port map (
 				iA			 => oSum, --PC+4
 				iB			 => iB, -- shift2 sign ext
@@ -98,7 +99,8 @@ begin
 				oSum		 => oSum, -- PC+4 + shift2 sign ext
 				oCout 		 => oCout); -- carry out
 
-	AND_1: andg2 -- and for the branch mux
+	AND_1: andg2
+	 -- and for the branch mux
 		port map (
 				i_A          => i_A, --control branch
 				i_B          => i_B, --alu zero
