@@ -20,7 +20,6 @@ entity full_adder_N is port(
        	oSum	: out 	std_logic_vector(DATA_WIDTH-1 downto 0);
 	   	oCout2	: out	std_logic;
 		oCout 	: out 	std_logic);
-
 end full_adder_N;
 
 architecture combination of full_adder_N is
