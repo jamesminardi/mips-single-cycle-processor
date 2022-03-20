@@ -194,6 +194,17 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 			o_O 	: out std_logic_vector(N-1 downto 0));
 	end component;
 
+	component fetch is
+		port(
+			i_Addr		: in std_logic_vector(DATA_WIDTH - 1 downto 0); --input address
+			i_Jump		: in std_logic; --input 0 or 1 for jump or not jump
+			i_Branch	: in std_logic; --input 0 or 1 for branch or not branch
+			i_BranchImm	: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+			i_JumpImm	: in std_logic_vector(JADDR_WIDTH - 1 downto 0);
+			o_Addr		: out std_logic_vector(DATA_WIDTH - 1 downto 0));
+	end component;
+		
+
 
 -- DONE: Ensure that s_Halt is connected to an output control signal produced
 --       from decoding the Halt instruction (Opcode: 01 0100)
@@ -342,7 +353,14 @@ begin
 		i_D1 => s_DMemOut,
 		o_O  => s_RegWrAddr);
 
-	
+	Fetch: fetch
+	port map(
+		i_Addr		=> s_NextInstrAddr,
+		i_Jump		=> s_Jump,
+		i_Branch	=> s_Zero AND s_Branch,
+		i_BranchImm	=> s_instr_imm32,
+		i_JumpImm	=> s_instr_Addr,
+		o_Addr		=> s_UpdatePC);
 
 
 end structure;
