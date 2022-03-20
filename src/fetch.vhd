@@ -13,14 +13,13 @@ entity fetch is
                 i_Branch   : in std_logic; --input 0 or 1 for branch or not branch
 				i_Imm  : in std_logic_vector(DATA_WIDTH - 1 downto 0);
                 o_Addr   : out std_logic_vector(DATA_WIDTH - 1 downto 0)); --output address
-
 end fetch;
 
 architecture behavior of fetch is
 
 	
 	component mux2t1_N is --mux's
-  	  	generic(N : integer := 32);
+  	  	generic(N : integer);
   		port(
 		        i_S          : in std_logic;
    	            i_D0         : in std_logic_vector(N-1 downto 0);
@@ -58,17 +57,19 @@ architecture behavior of fetch is
     --add this section for the sigals and begin stuff
 signal s_PCPlus4 : std_logic_vector(DATA_SELECT-1 downto 0);
 	        
-	begin 
-	generic(int : integer := 4);
-	G_NBit_MUX: for i in 0 to 31 generate -- there are 32 registers that will be tried in the mux
+
+begin 
+	--generic(int : integer := 4);
+	--G_NBit_MUX: for i in 0 to 31 generate -- there are 32 registers that will be tried in the mux
 	
-	ADD_4: full_adder_N --does the pc+4
+	Add4: full_adder_N --does the pc+4
 	port map (
-			iA			 => s_IMemAddr, -- PC data 
-			iB			 => int, -- 4
-			iCin	     => s_inner_carry, --carry in
-			oSum		 => oSum, -- sum = PC + 4 
-			oCout 		 => oCout); --carry out
+			iA		=> i_Addr, 		-- PC input
+			iB		=> x"00000004", -- 4
+			iCin	=> '0',
+			oSum	=> s_PCPlus4, 	-- PC plus 4
+			oCout2	=> open,
+			oCout	=> open);
 
 	SHIFT_1: barrel_shifter --shift to jump MUX
 		port map (
@@ -114,7 +115,7 @@ signal s_PCPlus4 : std_logic_vector(DATA_SELECT-1 downto 0);
              	i_D1         => i_D1(i), --1 = jump addr (31-0)
 	     	    o_O          => s_NextInstAddr); --output goes to PC (next inst addr in processor)
 
-
+	
 	
 
 
