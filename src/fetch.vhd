@@ -8,11 +8,11 @@ use work.MIPS_types.all;
 entity fetch is
       port(
 		i_CLK : in std_logic; --clock
-                i_A   : in std_logic_vector(31 downto 0); --input address
-                i_J   : in std_logic; --input 0 or 1 for jump or not jump
-                i_B   : in std_logic; --input 0 or 1 for branch or not branch
-				i_SE  : in std_logic_vector(31 downto 0);
-                o_A   : out std_logic_vector(31 downto 0)); --output address
+                i_Addr   : in std_logic_vector(DATA_WIDTH - 1 downto 0); --input address
+                i_Jump   : in std_logic; --input 0 or 1 for jump or not jump
+                i_Branch   : in std_logic; --input 0 or 1 for branch or not branch
+				i_Imm  : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+                o_Addr   : out std_logic_vector(DATA_WIDTH - 1 downto 0)); --output address
 
 end fetch;
 
@@ -31,11 +31,12 @@ architecture behavior of fetch is
 	
 	component full_adder_N is --add feature
 		port(
-			iA	: in 	std_logic_vector(DATA_WIDTH - 1 downto 0);
-       		iB	: in 	std_logic_vector(DATA_WIDTH-1 downto 0);
-       		iCin	: in 	std_logic;
-		    oSum	: out 	std_logic_vector(DATA_WIDTH-1 downto 0);
-	   		oCout 	: out 	std_logic);
+			iA		: in 	std_logic_vector(DATA_WIDTH - 1 downto 0);
+			iB		: in 	std_logic_vector(DATA_WIDTH-1 downto 0);
+			iCin	: in 	std_logic; -- Not needed
+			oSum	: out 	std_logic_vector(DATA_WIDTH-1 downto 0);
+			oCout2	: out	std_logic; -- Not needed: Cout before the last adder
+		 	oCout 	: out 	std_logic);
 	end component;
 
 	component barrel_shifter is	
@@ -55,6 +56,7 @@ architecture behavior of fetch is
 	end component;
 	
     --add this section for the sigals and begin stuff
+signal s_PCPlus4 : std_logic_vector(DATA_SELECT-1 downto 0);
 	        
 	begin 
 	generic(int : integer := 4);
