@@ -206,7 +206,7 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 
 -- DONE: Ensure that s_Halt is connected to an output control signal produced
 --       from decoding the Halt instruction (Opcode: 01 0100)
--- TODO: Ensure that s_Ovfl is connected to the overflow output of your ALU
+-- DONE: Ensure that s_Ovfl is connected to the overflow output of your ALU
 
 -- TODO: Implement the rest of your processor below this comment!
 begin
@@ -343,7 +343,7 @@ begin
 		i_S  => s_MemtoReg,
 		i_D0 => s_ALUResult,
 		i_D1 => s_DMemOut,
-		o_O  => s_RegWrAddr);
+		o_O  => s_RegWrData);
 
 	Fetch_Unit: fetch
 	port map(
@@ -354,5 +354,7 @@ begin
 		i_JumpImm	=> s_instr_Addr,
 		o_Addr		=> s_UpdatePC);
 
+
+	oALUOut <= s_ALUResult;
 
 end structure;
