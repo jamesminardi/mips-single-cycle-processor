@@ -11,7 +11,8 @@ entity fetch is
                 i_Addr   : in std_logic_vector(DATA_WIDTH - 1 downto 0); --input address
                 i_Jump   : in std_logic; --input 0 or 1 for jump or not jump
                 i_Branch   : in std_logic; --input 0 or 1 for branch or not branch
-				i_Imm  : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+				i_BranchImm  : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+				i_JumpImm  : in std_logic_vector(JADDR_WIDTH - 1 downto 0);
                 o_Addr   : out std_logic_vector(DATA_WIDTH - 1 downto 0)); --output address
 end fetch;
 
@@ -55,7 +56,9 @@ architecture behavior of fetch is
 	end component;
 	
     --add this section for the sigals and begin stuff
-signal s_PCPlus4 : std_logic_vector(DATA_SELECT-1 downto 0);
+signal s_PCPlus4 		: std_logic_vector(DATA_SELECT-1 downto 0);
+signal s_BranchImmShift : std_logic_vector(DATA_SELECT - 1 downto 0);
+signal s_JumpImmShift 	: std_logic_vector(DATA_SELECT - 1 downto 0); -- Only 28 lsb are used
 	        
 
 begin 
@@ -71,21 +74,21 @@ begin
 			oCout2	=> open,
 			oCout	=> open);
 
-	SHIFT_1: barrel_shifter --shift to jump MUX
+	Shift_JAddr: barrel_shifter --shift to jump MUX
 		port map (
-			iA               => iA,
-			iLeft            => 1,
-			iArithmetic      => 0,
-			iShamt           => iShamt,
-			oResult          => oResult);
+			iA         		=> "000000" & i_JumpImm,
+			iLeft      		=> '1',
+			iArithmetic		=> '0',
+			iShamt     		=> "00010",
+			oResult    		=> s_JumpImmShift);
 
-	SHIFT_2: barrel_shifter --shift to ALU
+	Shift_BAddr: barrel_shifter --shift to ALU
 		port map (
-				iA           => iA, --input signal from barrel shift file
-				iLeft        => 1,
-				iArithmetic  => 0,
-				iShamt       => iShamt,
-				oResult      => oResult); --output	
+				iA           => i_BranchImm,
+				iLeft        => '1',
+				iArithmetic  => '0',
+				iShamt       => "00010",
+				oResult      => s_BranchImmShift); --output	
 
 	ADD_ALU: full_adder_N --(pc+4) + shift2 to branch mux
 		port map (
@@ -115,7 +118,7 @@ begin
              	i_D1         => i_D1(i), --1 = jump addr (31-0)
 	     	    o_O          => s_NextInstAddr); --output goes to PC (next inst addr in processor)
 
-	
+
 	
 
 
