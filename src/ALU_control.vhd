@@ -54,7 +54,7 @@ begin
     with iALUOp select
         oAction <=
         s_oAction when "0000", -- Funct if Opcode == "000000"
-        iOP when others; -- Use OPcode instruction if opcode != "000000"
+        iALUOp when others; -- Use OPcode instruction if opcode != "000000"
 
 end dataflow;
 

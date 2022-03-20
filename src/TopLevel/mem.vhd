@@ -5,13 +5,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity mem is
 
-	generic 
-	(
-		DATA_WIDTH : natural := 32;
-		ADDR_WIDTH : natural := 10
-	);
+
+library work;
+use work.MIPS_types.all;
+
+
+entity mem is
 
 	port 
 	(

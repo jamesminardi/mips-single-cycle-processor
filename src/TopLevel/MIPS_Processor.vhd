@@ -64,8 +64,6 @@ signal s_Halt			: std_logic;
 signal s_Ovfl			: std_logic;
 
 	component mem is
-		generic(ADRR_WIDTH : integer;
-				DATA_WIDTH : integer);
 		port(
 			clk		: in std_logic;
 			addr	: in std_logic_vector((ADDR_WIDTH-1) downto 0);
@@ -78,7 +76,7 @@ signal s_Ovfl			: std_logic;
 --       requires below this comment
 
 --------------------------  CONTROL OUTPUT SIGNALS  --------------------------
-signal s_RegDst 	: std_logic_vector(DATA_SELECT - 1 downto 0);
+signal s_RegDst 	: std_logic;
 signal s_ALUSrc 	: std_logic;
 signal s_MemtoReg 	: std_logic;
 -- signal s_RegWrite 	: std_logic; -- s_RegWr replaces this
@@ -240,9 +238,6 @@ begin
     	iInstAddr 	   when others;
 
 	IMem: mem
-	generic map(
-		ADDR_WIDTH => ADDR_WIDTH,
-		DATA_WIDTH => N)
 	port map(
 		clk  => iCLK,
 		addr => s_IMemAddr(11 downto 2),
@@ -251,9 +246,6 @@ begin
 		q    => s_Inst);
 		  
 	DMem: mem
-	generic map(
-		ADDR_WIDTH => ADDR_WIDTH,
-		DATA_WIDTH => N)
 	port map(
 		clk  => iCLK,
 		addr => s_DMemAddr(11 downto 2),
@@ -268,9 +260,9 @@ begin
 		i_CLK => iCLK,
 		i_RST => iRST,
 		i_D => s_UpdatePC,
-		o_Q => s_NextInstrAddr);
+		o_Q => s_NextInstAddr);
 
-	Control: control
+	Control_Unit: control
 	port map (
 		iOpcode     => s_instr_Opcode,
 		-- iALUZero =>
@@ -284,13 +276,13 @@ begin
 		oSignExt	=> s_SignExt,
 		oJump       => s_Jump,
 		oBranch     => s_Branch,
-		oALUOp      => s_ALUOp
+		oALUOp      => s_ALUOp,
 		oHalt		=> s_Halt);
 
 
-	ALU_Control: ALU_control
+	ALU_Control_Unit: ALU_control
 	port map(
-		iALUOp  => s_ALUOp
+		iALUOp  => s_ALUOp,
 		iFunct  => s_instr_Funct,
 		oAction => s_ALUAction);
 	
@@ -310,9 +302,9 @@ begin
 		i_D1 => s_instr_Rd,
 		o_O  => s_RegWrAddr);
 
-	Regfile: regfile
+	Regfile_Unit: regfile
 	generic map(
-		N => DATA_WIDTH
+		N => DATA_WIDTH,
 		REG_W => DATA_SELECT)
 	port map(
 		i_CLK	=> iCLK, 
@@ -339,7 +331,7 @@ begin
 		iA			=> s_ReadRs,
         iB			=> s_ALUInB,
         iALUOp		=> s_ALUAction,
-        oResult		=> s_ALUResult
+        oResult		=> s_ALUResult,
         oCout		=> s_Cout,
         oOverflow	=> s_Ovfl, -- Given Signal
         oZero		=> s_Zero);
@@ -353,9 +345,9 @@ begin
 		i_D1 => s_DMemOut,
 		o_O  => s_RegWrAddr);
 
-	Fetch: fetch
+	Fetch_Unit: fetch
 	port map(
-		i_Addr		=> s_NextInstrAddr,
+		i_Addr		=> s_NextInstAddr,
 		i_Jump		=> s_Jump,
 		i_Branch	=> s_Zero AND s_Branch,
 		i_BranchImm	=> s_instr_imm32,
