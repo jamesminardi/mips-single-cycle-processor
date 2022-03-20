@@ -54,8 +54,7 @@ signal s_IMemAddr    	: std_logic_vector(N-1 downto 0); -- Do not assign this si
 signal s_NextInstAddr	: std_logic_vector(N-1 downto 0); -- TODO: use this signal as your intended final instruction memory address input.
 signal s_Inst        	: std_logic_vector(N-1 downto 0); -- TODO: use this signal as the instruction signal 
 
--- Required halt signal -- for simulation
--- TODO: this signal indicates to the simulation that intended
+-- DONE: this signal indicates to the simulation that intended
 -- program execution has completed. (Opcode: 01 0100)
 signal s_Halt			: std_logic;
 
@@ -155,7 +154,8 @@ signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); 	-- Input i
 			oSignExt	: out std_logic; -- Whether to sign extend the immediate or not
 			oJump       : out std_logic; -- Selects setting PC to jump value or not
 			oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
-			oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0)); -- Selects ALU operation or to select from funct field
+			oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0); -- Selects ALU operation or to select from funct field
+			oHalt		: out std_logic); -- Halt port
 	end component;
 
 	component ALU_control is
@@ -191,7 +191,11 @@ signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); 	-- Input i
 	end component;
 
 
+-- DONE: Ensure that s_Halt is connected to an output control signal produced
+--       from decoding the Halt instruction (Opcode: 01 0100)
+-- TODO: Ensure that s_Ovfl is connected to the overflow output of your ALU
 
+-- TODO: Implement the rest of your processor below this comment!
 begin
 
 
@@ -278,15 +282,6 @@ begin
 		i_D0 =>
 		i_D1 =>
 		o_O  => );
-	
-
--- TODO: Ensure that s_Halt is connected to an output control signal produced
---       from decoding the Halt instruction (Opcode: 01 0100)
--- TODO: Ensure that s_Ovfl is connected to the overflow output of your ALU
-
--- TODO: Implement the rest of your processor below this comment!
-
-
 
 
 end structure;
