@@ -81,17 +81,16 @@ signal s_Ovfl			: std_logic;
 signal s_RegDst 	: std_logic_vector(DATA_SELECT - 1 downto 0);
 signal s_ALUSrc 	: std_logic;
 signal s_MemtoReg 	: std_logic;
-signal s_RegWrite 	: std_logic;
+-- signal s_RegWrite 	: std_logic; -- s_RegWr replaces this
 signal s_MemRead 	: std_logic;
 signal s_MemWrite 	: std_logic;
 signal s_SignExt	: std_logic;
 signal s_Jump 		: std_logic;
 signal s_Branch 	: std_logic;
 signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
-
+signal s_ALUAction : std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
 --------------------------  INSTRUCTION SIGNALS  --------------------------
-
 signal s_instr_Opcode 	: std_logic_vector(OPCODE_WIDTH - 1 downto 0); -- Opcode
 signal s_instr_Rs		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rs
 signal s_instr_Rt		: std_logic_vector(DATA_SELECT  - 1 downto 0); -- Rt
@@ -105,9 +104,14 @@ signal s_instr_Addr		: std_logic_vector(JADDR_WIDTH  - 1 downto 0); -- Addr widt
 --------------------------  GENERAL SIGNALS  --------------------------
 signal s_UpdatePC : std_logic_vector(DATA_WIDTH - 1 downto 0);			-- Input into PC register
 signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); 	-- Input into regfile i_Rd
-	
+signal s_ReadRs : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Output of regfile read Rs
+signal s_ReadRt : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Output of regfile read Rt
+signal s_ALUInB : std_logic_vector(DATA_WIDTH - 1 downto 0); -- 2nd input of ALU (Imm)
+signal s_ALUResult : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Result from main alu
+signal s_Cout : std_logic; -- Carry out from ALU
+signal s_Zero : std_logic; -- Zero signal from ALU
 
---------------------------  COMPONENTS  --------------------------
+	--------------------------  COMPONENTS  --------------------------
 	component pc_register is
 		generic(N : integer);
 			port(
@@ -209,6 +213,10 @@ begin
 	s_instr_imm16	(DATA_WIDTH/2 - 1 downto 0) <= s_Inst(15 downto 0);
 	s_instr_Addr	(JADDR_WIDTH  - 1 downto 0) <= s_Inst(25 downto 0);
 
+	s_DMemAddr <= s_ALUResult;
+	s_DMemData <= s_ReadRt;
+	s_DMemWr <= s_MemWrite;
+
 	-- TODO: This is required to be your final input to your instruction memory.
 	-- This provides a feasible method to externally load the memory module which
 	-- means that the synthesis tool must assume it knows nothing about the values
@@ -259,7 +267,7 @@ begin
 		oRegDst     => s_RegDst,
 		oALUSrc     => s_ALUSrc,
 		oMemtoReg   => s_MemtoReg,
-		oRegWrite   => s_RegWrite,
+		oRegWrite   => s_RegWr,
 		oMemRead    => s_MemRead,
 		oMemWrite   => s_MemWrite,
 		oSignExt	=> s_SignExt,
@@ -268,20 +276,73 @@ begin
 		oALUOp      => s_ALUOp
 		oHalt		=> s_Halt);
 
+
+	ALU_Control: ALU_control
+	port map(
+		iALUOp  => s_ALUOp
+		iFunct  => s_instr_Funct,
+		oAction => s_ALUAction);
+	
+
 	Sign_Extender: extender
 	port map(
 		i_D 	 => s_instr_imm16,
 		i_Extend => s_SignExt,
 		o_F 	 => s_instr_imm32);
 
-	Write_Reg_Mux: mux2t1_N
+	RegDst_Mux: mux2t1_N
 	generic map(
 		N => DATA_WIDTH)
 	port map(
-		i_S  =>
-		i_D0 =>
-		i_D1 =>
-		o_O  => );
+		i_S  => s_RegDst,
+		i_D0 => s_instr_Rt,
+		i_D1 => s_instr_Rd,
+		o_O  => s_RegWrAddr);
+
+	Regfile: regfile
+	generic map(
+		N => DATA_WIDTH
+		REG_W => DATA_SELECT)
+	port map(
+		i_CLK	=> iCLK, 
+		i_RST	=> iRST, 
+		i_We 	=> s_RegWr, 
+		i_Rs 	=> s_instr_Rs,  -- Register to read 1
+		i_Rt 	=> s_instr_Rt,  -- Register to read 2
+		i_Rd 	=> s_RegWrAddr, -- Reg being written to
+		i_Wd 	=> s_RegWrData, -- Data to write to i_Rd
+		o_Rs 	=> s_ReadRs, 	-- i_rs data output
+		o_Rt 	=> s_ReadRt);	-- i_rt data output
+
+	ALUSrc_mux: mux2t1_N
+	generic map(
+		N => DATA_WIDTH)
+	port map(
+		i_S  => s_ALUSrc,
+		i_D0 => s_ReadRt,
+		i_D1 => s_instr_imm32,
+		o_O  => s_ALUInB);
+
+	ALU_Main: ALU
+	port map (
+		iA			=> s_ReadRs,
+        iB			=> s_ALUInB,
+        iALUOp		=> s_ALUAction,
+        oResult		=> s_ALUResult
+        oCout		=> s_Cout,
+        oOverflow	=> s_Ovfl, -- Given Signal
+        oZero		=> s_Zero);
+
+	MemtoReg_Mux: mux2t1_N
+	generic map(
+		N => DATA_WIDTH)
+	port map (
+		i_S  => s_MemtoReg,
+		i_D0 => s_ALUResult,
+		i_D1 => s_DMemOut,
+		o_O  => s_RegWrAddr);
+
+	
 
 
 end structure;
