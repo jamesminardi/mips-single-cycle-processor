@@ -261,7 +261,8 @@ begin
 		oSignExt	=> s_SignExt,
 		oJump       => s_Jump,
 		oBranch     => s_Branch,
-		oALUOp      => s_ALUOp);
+		oALUOp      => s_ALUOp
+		oHalt		=> s_Halt);
 
 	Sign_Extender: extender
 	port map(
