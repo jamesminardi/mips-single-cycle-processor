@@ -24,7 +24,7 @@ entity dffg is
 
   port(i_CLK        : in std_logic;     -- Clock input
        i_RST        : in std_logic;     -- Reset input
-       i_We         : in std_logic;     -- Write enable input
+       i_WE         : in std_logic;     -- Write enable input
        i_D          : in std_logic;     -- Data value input
        o_Q          : out std_logic);   -- Data value output
 
@@ -40,7 +40,7 @@ begin
   o_Q <= s_Q;
   
   -- Create a multiplexed input to the FF based on i_WE
-  with i_We select
+  with i_WE select
     s_D <= i_D when '1',
            s_Q when others;
   
