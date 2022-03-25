@@ -88,6 +88,11 @@ begin
             '1' when "000101",
             '0' when others;
     with iOpcode select
+        oBranchEQ <=
+            '1' when "000100",
+            '0' when "000101",
+            '0' when others;
+    with iOpcode select
         oALUOp <=
             "0000" when "000000",
             "0010" when "001000",
