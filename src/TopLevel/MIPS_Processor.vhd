@@ -85,6 +85,7 @@ signal s_MemWrite 	: std_logic;
 signal s_SignExt	: std_logic;
 signal s_Jump 		: std_logic;
 signal s_Branch 	: std_logic;
+signal s_BEQ		: std_logic;
 signal s_ALUOp 		: std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 signal s_ALUAction : std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 
@@ -115,7 +116,6 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 			port(
 				i_CLK	: in std_logic;     -- Clock input
 				i_RST	: in std_logic;     -- Reset input
-				i_WE    : in std_logic;     -- Write enable input
 	       		i_D		: in std_logic_vector(N-1 downto 0);     -- Data value input
 	       		o_Q		: out std_logic_vector(N-1 downto 0));   -- Data value output
 	end component;
@@ -157,6 +157,7 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 			oSignExt	: out std_logic; -- Whether to sign extend the immediate or not
 			oJump       : out std_logic; -- Selects setting PC to jump value or not
 			oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
+			oBranchEQ   : out std_logic; -- Determines if BEQ or BNE
 			oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0); -- Selects ALU operation or to select from funct field
 			oHalt		: out std_logic); -- Halt port
 	end component;
@@ -198,6 +199,8 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 			i_Addr		: in std_logic_vector(DATA_WIDTH - 1 downto 0); --input address
 			i_Jump		: in std_logic; --input 0 or 1 for jump or not jump
 			i_Branch	: in std_logic; --input 0 or 1 for branch or not branch
+			i_Zero      : in std_logic;
+			i_BEQ   : in std_logic; --input 0 or 1 for branchEQ or BNE
 			i_BranchImm	: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 			i_JumpImm	: in std_logic_vector(JADDR_WIDTH - 1 downto 0);
 			o_Addr		: out std_logic_vector(DATA_WIDTH - 1 downto 0));
@@ -260,7 +263,6 @@ begin
 	port map (
 		i_CLK => iCLK,
 		i_RST => iRST,
-		i_We => '1',
 		i_D => s_UpdatePC,
 		o_Q => s_NextInstAddr);
 
@@ -278,6 +280,7 @@ begin
 		oSignExt	=> s_SignExt,
 		oJump       => s_Jump,
 		oBranch     => s_Branch,
+		oBranchEQ   => s_BEQ,
 		oALUOp      => s_ALUOp,
 		oHalt		=> s_Halt);
 
@@ -351,7 +354,9 @@ begin
 	port map(
 		i_Addr		=> s_NextInstAddr,
 		i_Jump		=> s_Jump,
-		i_Branch	=> s_Zero AND s_Branch,
+		i_Branch	=> s_Branch,
+		i_Zero      => s_Zero,
+		i_BEQ       => s_BEQ,
 		i_BranchImm	=> s_instr_imm32,
 		i_JumpImm	=> s_instr_Addr,
 		o_Addr		=> s_UpdatePC);
