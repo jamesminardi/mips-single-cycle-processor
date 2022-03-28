@@ -101,7 +101,7 @@ signal s_instr_Addr		: std_logic_vector(JADDR_WIDTH  - 1 downto 0); -- Addr widt
 
 --------------------------  GENERAL SIGNALS  --------------------------
 signal s_UpdatePC : std_logic_vector(DATA_WIDTH - 1 downto 0);			-- Input into PC register
-signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); 	-- Input into regfile i_Rd
+--signal s_WriteRegister : std_logic_vector(DATA_SELECT - 1 downto 0); 	-- Input into regfile i_Rd
 signal s_ReadRs : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Output of regfile read Rs
 signal s_ReadRt : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Output of regfile read Rt
 signal s_ALUInB : std_logic_vector(DATA_WIDTH - 1 downto 0); -- 2nd input of ALU (Imm)
@@ -297,7 +297,7 @@ begin
 
 	RegDst_Mux: mux2t1_N
 	generic map(
-		N => DATA_WIDTH)
+		N => DATA_SELECT)
 	port map(
 		i_S  => s_RegDst,
 		i_D0 => s_instr_Rt,

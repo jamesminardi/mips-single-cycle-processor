@@ -99,14 +99,23 @@ begin
     -- Select ALU result
     with iALUOP select
         oResult <=
-            s_add_sub_result when "001-",
-            iA AND iB when "0100",
-            iA OR iB when "0101",
-            iA XOR iB when "0111",
-            iA NOR iB when "0110",
-            s_barrel_shifter_result when "10--",
-            s_set_less_than_result when "11--",
-            s_barrel_shifter_result when others;
+        s_add_sub_result when "0010", -- add
+        s_add_sub_result when "0011", -- sub
+        iA AND iB when "0100",
+        iA OR iB when "0101",
+        iA XOR iB when "0111",
+        iA NOR iB when "0110",
+        
+        s_barrel_shifter_result when "1000",
+        s_barrel_shifter_result when "1001",
+        s_barrel_shifter_result when "1010",
+        s_barrel_shifter_result when "1011",
+
+        s_set_less_than_result when "1100",
+        s_set_less_than_result when "1101",
+        s_set_less_than_result when "1110",
+        s_set_less_than_result when "1111",
+        x"DEADBEEF" when others;
     
     -- Set zero bit
     with oResult select

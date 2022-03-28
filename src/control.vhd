@@ -42,8 +42,14 @@ architecture dataflow of control is
 begin
     with iOpcode select
         oRegDst <=
-            '0' when "001111",
-            '0' when "100011",
+            '0' when "001000",  -- Addi
+            '0' when "001001",  -- Addiu
+            '0' when "001100",  -- Andi
+            '0' when "001111",  -- Lui
+            '0' when "100011",  -- Lw
+            '0' when "001110",  -- Xori
+            '0' when "001101",  -- Ori
+            '0' when "001010", -- Slti
             '1' when others;
     with iOpcode select
         oALUSrc <=
@@ -57,11 +63,18 @@ begin
             '0' when others;
     with iOpcode select
         oRegWrite <=
-            '0' when "101011",
-            '0' when "000100",
-            '0' when "000101",
-            '0' when "000010",
-            '1' when others;
+            '1' when "000000", -- R-type
+            '1' when "001000", -- addi
+            '1' when "001001", -- addiu
+            '1' when "001100", -- andi
+            '1' when "001111", -- lui
+            '1' when "100011", -- lw
+            '1' when "001110", -- xori
+            '1' when "001101", -- ori
+            '1' when "001010", -- slti
+            '1' when "000011", -- jal
+            '0' when others;
+
     with iOpcode select
         oMemRead <=
             '1' when "100011",
