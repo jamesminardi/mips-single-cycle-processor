@@ -52,6 +52,7 @@ architecture behavior of fetch is
 			oResult      : out std_logic_vector(DATA_WIDTH-1 downto 0));
 	end component;
 	
+	
     --add this section for the sigals and begin stuff
 signal s_PCPlus4 		: std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_BranchImmShift : std_logic_vector(DATA_WIDTH - 1 downto 0);
