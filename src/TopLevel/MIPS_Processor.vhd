@@ -180,6 +180,7 @@ signal s_PCPlus4 : std_logic_vector(DATA_WIDTH - 1 downto 0);
 		port(
 			iA 		: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 			iB 		: in std_logic_vector(DATA_WIDTH - 1 downto 0);
+			iShamt : in std_logic_vector(DATA_SELECT - 1 downto 0);
 			iALUOp 	: in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 			oResult : out std_logic_vector(DATA_WIDTH - 1 downto 0);
 			oCout 	: out std_logic;
@@ -349,6 +350,7 @@ begin
 	port map (
 		iA			=> s_ReadRs,
         iB			=> s_ALUInB,
+		iShamt		=> s_instr_Shamt,
         iALUOp		=> s_ALUAction,
         oResult		=> s_ALUResult,
         oCout		=> s_Cout,

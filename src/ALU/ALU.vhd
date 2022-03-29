@@ -19,6 +19,7 @@ entity ALU is
     port (
         iA : in std_logic_vector(DATA_WIDTH - 1 downto 0);
         iB : in std_logic_vector(DATA_WIDTH - 1 downto 0);
+        iShamt : in std_logic_vector(DATA_SELECT - 1 downto 0);
         iALUOp : in std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
         oResult : out std_logic_vector(DATA_WIDTH - 1 downto 0);
         oCout : out std_logic;
@@ -49,6 +50,7 @@ architecture mixed of ALU is
 
 signal s_subtract : std_logic;
 signal s_add_sub_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
+signal s_overflow_control : std_logic;
 signal s_barrel_shifter_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_set_less_than_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_cout, s_cout2 : std_logic;
@@ -62,13 +64,20 @@ signal s_overflow : std_logic;
 begin
 
     -- Set parameters for ALU components
-    --s_subtract <= iALUOp(0);
-    --s_left_shift <= NOT iALUOP(1);
-    --s_arithmetic <= iALUOP(0);
+    s_subtract <= iALUOp(0);
+    s_left_shift <= NOT iALUOP(1);
+    s_arithmetic <= iALUOP(0);
     
+    with iALUOp select
+        s_overflow_control <=
+            '1' when "0010", -- add
+            '1' when "0011", -- sub
+            '0' when others;
+
+
     add_sub_C: add_sub
     port map(
-        iSubtract => iALUOp(0),
+        iSubtract => s_subtract,
         iA	    => iA,
         iB	    => iB,
         oSum	=> s_add_sub_result,
@@ -77,17 +86,17 @@ begin
 
     barrel_shifter_C: barrel_shifter
     port map(
-        iA => iA,
-        iLeft => NOT iALUOP(1),
-        iArithmetic => iALUOP(0),
-        iShamt => s_shamt,
+        iA => iB,
+        iLeft => s_left_shift,
+        iArithmetic => s_arithmetic,
+        iShamt => iShamt,
         oResult => s_barrel_shifter_result);
 
 
     
     -- Set overflow signal
     s_overflow <= s_cout XOR s_cout2;
-    oOverflow <= s_overflow;
+    oOverflow <= s_overflow AND s_overflow_control;
     
     -- Set less than result using Overflow detect and result from (a-b)
     s_set_less_than_result <= "0000000000000000000000000000000" & (s_add_sub_result(DATA_WIDTH - 1) XOR s_overflow);
