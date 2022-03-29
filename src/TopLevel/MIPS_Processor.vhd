@@ -76,9 +76,9 @@ signal s_Ovfl			: std_logic;
 --       requires below this comment
 
 --------------------------  CONTROL OUTPUT SIGNALS  --------------------------
-signal s_RegDst 	: std_logic;
+signal s_RegDst 	: std_logic_vector(REGDST_WIDTH - 1 downto 0);
 signal s_ALUSrc 	: std_logic;
-signal s_MemtoReg 	: std_logic;
+signal s_MemtoReg 	: std_logic_vector(MEMTOREG_WIDTH - 1 downto 0);
 -- signal s_RegWrite 	: std_logic; -- s_RegWr replaces this
 signal s_MemRead 	: std_logic;
 signal s_MemWrite 	: std_logic;
@@ -109,6 +109,7 @@ signal s_ALUInB : std_logic_vector(DATA_WIDTH - 1 downto 0); -- 2nd input of ALU
 signal s_ALUResult : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Result from main alu
 signal s_Cout : std_logic; -- Carry out from ALU
 signal s_Zero : std_logic; -- Zero signal from ALU
+signal s_PCPlus4 : std_logic_vector(DATA_WIDTH - 1 downto 0);
 
 	--------------------------  COMPONENTS  --------------------------
 	component pc_register is
@@ -116,6 +117,7 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 			port(
 				i_CLK	: in std_logic;     -- Clock input
 				i_RST	: in std_logic;     -- Reset input
+				i_WE	: in std_logic;		-- Write enable
 	       		i_D		: in std_logic_vector(N-1 downto 0);     -- Data value input
 	       		o_Q		: out std_logic_vector(N-1 downto 0));   -- Data value output
 	end component;
@@ -148,9 +150,9 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 			iOpcode     : in std_logic_vector(OPCODE_WIDTH -1 downto 0); -- 6 MSB of 32bit instruction
 			-- iALUZero : in std_logic; -- TODO: Zero flag from ALU for PC src?
 			-- oPCSrc : in std_logic; -- TODO: Selects using PC+4 or branch addy
-			oRegDst     : out std_logic; -- Selects r-type vs i-type write register
+			oRegDst     : out std_logic_vector(REGDST_WIDTH - 1 downto 0); -- Selects r-type vs i-type write register
 			oALUSrc     : out std_logic; -- Selects source for second ALU input (Rt vs Imm)
-			oMemtoReg   : out std_logic; -- Selects ALU result or memory result to reg write
+			oMemtoReg   : out std_logic_vector(MEMTOREG_WIDTH - 1 downto 0); -- Selects ALU result or memory result to reg write
 			oRegWrite   : out std_logic; -- Enable register write in datapath->registerfile
 			oMemRead    : out std_logic; -- Enable reading of memory in dmem
 			oMemWrite   : out std_logic; -- Enable writing to memory in dmem
@@ -198,12 +200,15 @@ signal s_Zero : std_logic; -- Zero signal from ALU
 		port(
 			i_Addr		: in std_logic_vector(DATA_WIDTH - 1 downto 0); --input address
 			i_Jump		: in std_logic; --input 0 or 1 for jump or not jump
+			i_JumpReg	: in std_logic; -- jump register instr or not
+			i_JumpRegData: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 			i_Branch	: in std_logic; --input 0 or 1 for branch or not branch
 			i_Zero      : in std_logic;
 			i_BEQ   : in std_logic; --input 0 or 1 for branchEQ or BNE
 			i_BranchImm	: in std_logic_vector(DATA_WIDTH - 1 downto 0);
 			i_JumpImm	: in std_logic_vector(JADDR_WIDTH - 1 downto 0);
-			o_Addr		: out std_logic_vector(DATA_WIDTH - 1 downto 0));
+			o_Addr		: out std_logic_vector(DATA_WIDTH - 1 downto 0);
+			o_PCPlus4	: out std_logic_vector(DATA_WIDTH - 1 downto 0));
 	end component;
 		
 
@@ -263,6 +268,7 @@ begin
 	port map (
 		i_CLK => iCLK,
 		i_RST => iRST,
+		i_WE => '1',
 		i_D => s_UpdatePC,
 		o_Q => s_NextInstAddr);
 
@@ -298,14 +304,22 @@ begin
 		i_Extend => s_SignExt,
 		o_F 	 => s_instr_imm32);
 
-	RegDst_Mux: mux2t1_N
-	generic map(
-		N => DATA_SELECT)
-	port map(
-		i_S  => s_RegDst,
-		i_D0 => s_instr_Rt,
-		i_D1 => s_instr_Rd,
-		o_O  => s_RegWrAddr);
+	-- Updated to a 3-1 mux using with-select below v
+	-- RegDst_Mux: mux2t1_N
+	-- generic map(
+	-- 	N => DATA_SELECT)
+	-- port map(
+	-- 	i_S  => s_RegDst,
+	-- 	i_D0 => s_instr_Rt,
+	-- 	i_D1 => s_instr_Rd,
+	-- 	o_O  => s_RegWrAddr);
+
+	with s_RegDst select
+		s_RegWrAddr <=
+			s_instr_Rt when "00",
+			s_instr_Rd when "01",
+			"11111" when "10",
+			s_instr_Rt when others;
 
 	Regfile_Unit: regfile
 	generic map(
@@ -341,25 +355,36 @@ begin
         oOverflow	=> s_Ovfl, -- Given Signal
         oZero		=> s_Zero);
 
-	MemtoReg_Mux: mux2t1_N
-	generic map(
-		N => DATA_WIDTH)
-	port map (
-		i_S  => s_MemtoReg,
-		i_D0 => s_ALUResult,
-		i_D1 => s_DMemOut,
-		o_O  => s_RegWrData);
+	-- Changed to 3-1 mux using with-select below
+	-- MemtoReg_Mux: mux2t1_N
+	-- generic map(
+	-- 	N => DATA_WIDTH)
+	-- port map (
+	-- 	i_S  => s_MemtoReg,
+	-- 	i_D0 => s_ALUResult,
+	-- 	i_D1 => s_DMemOut,
+	-- 	o_O  => s_RegWrData);
+
+	with s_MemtoReg select
+		s_RegWrData <=
+		s_ALUResult when "00",
+		s_DMemOut when "01",
+		s_PCPlus4 when "10",
+		s_ALUResult when others;
 
 	Fetch_Unit: fetch
 	port map(
 		i_Addr		=> s_NextInstAddr,
 		i_Jump		=> s_Jump,
+		i_JumpReg	=> NOT (s_RegWr OR s_MemRead OR s_MemWrite OR s_Jump OR s_Branch), -- TODO: total hack, should fix
+		i_JumpRegData=> s_ReadRs,
 		i_Branch	=> s_Branch,
 		i_Zero      => s_Zero,
 		i_BEQ       => s_BEQ,
 		i_BranchImm	=> s_instr_imm32,
 		i_JumpImm	=> s_instr_Addr,
-		o_Addr		=> s_UpdatePC);
+		o_Addr		=> s_UpdatePC,
+		o_PCPlus4	=> s_PCPlus4);
 
 
 	oALUOut <= s_ALUResult;
