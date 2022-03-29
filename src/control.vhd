@@ -31,6 +31,7 @@ entity control is
         oSignExt    : out std_logic; -- Sign extend immediate value
         oJump       : out std_logic; -- Selects setting PC to jump value or not
         oBranch     : out std_logic; -- Helps select using PC+4 or branch address by being Anded with ALU Zero
+        oBranchEQ   : out std_logic; -- 
         oALUOp      : out std_logic_vector(ALU_OP_WIDTH - 1 downto 0); -- Selects ALU operation or to select from funct field
         oHalt       : out std_logic); -- Halt bit to stop program
 end control;
