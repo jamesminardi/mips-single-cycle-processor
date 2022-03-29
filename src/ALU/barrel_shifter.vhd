@@ -38,7 +38,7 @@ architecture mixed of barrel_shifter is
     end component;
 
 signal s_ext : std_logic;
-signal s_iA : std_logic_vector(DATA_WIDTH - 1 downto 0);
+signal s_iA : std_logic_vector(DATA_WIDTH - 1 downto 0); -- Data after being shifted
 signal s_result_16b : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_result_8b : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_result_4b : std_logic_vector(DATA_WIDTH - 1 downto 0);
@@ -66,7 +66,7 @@ begin
             iA when others;
 
     s_shifted_16b(31 downto 16) <= (others => s_ext);
-    s_shifted_16b(15 downto 0)  <= iA(31 downto 16);
+    s_shifted_16b(15 downto 0)  <= s_iA(31 downto 16);
 
     s_shifted_8b(31 downto 24)  <= (others => s_ext);
     s_shifted_8b(23 downto 0)   <= s_result_16b(31 downto 8);
@@ -84,7 +84,7 @@ begin
     MUX2t1_N_16b: mux2t1_N
         port map(
             i_S  => iShamt(4),
-            i_D0 => iA,
+            i_D0 => s_iA,
             i_D1 => s_shifted_16b,
             o_O  => s_result_16b);
 

@@ -80,6 +80,66 @@ begin
         --  oResult = x"3CB478F0"
         wait for 100 ns;
 
+
+
+-- Test shift left logical (0 bit)
+        s_iA <= x"00000001";
+        s_iLeft <= '1';
+        s_iArithmetic <= '0';
+        s_iShamt <= "00000"; -- Shift 1
+        -- Expected:
+        --  oResult = x"00000001"
+        wait for 100 ns;
+
+
+-- Test shift left logical (1 bit)
+        s_iA <= x"00000001";
+        s_iLeft <= '1';
+        s_iArithmetic <= '0';
+        s_iShamt <= "00001"; -- Shift 1
+        -- Expected:
+        --  oResult = x"00000002"
+        wait for 100 ns;
+
+-- Test shift left logical (2 bit)
+        s_iA <= x"00000001";
+        s_iLeft <= '1';
+        s_iArithmetic <= '0';
+        s_iShamt <= "00010"; -- Shift 2
+        -- Expected:
+        --  oResult = x"00000004"
+        wait for 100 ns;
+
+-- Test shift left logical (4 bit)
+        s_iA <= x"00000001";
+        s_iLeft <= '1';
+        s_iArithmetic <= '0';
+        s_iShamt <= "00100"; -- Shift 4
+        -- Expected:
+        --  oResult = x"00000010"
+        wait for 100 ns;
+
+-- Test shift left logical (8 bit)
+        s_iA <= x"00000001";
+        s_iLeft <= '1';
+        s_iArithmetic <= '0';
+        s_iShamt <= "01000"; -- Shift 8
+        -- Expected:
+        --  oResult = x"00000100"
+        wait for 100 ns;
+
+
+-- Test shift left logical (16 bit)
+        s_iA <= x"00000001";
+        s_iLeft <= '1';
+        s_iArithmetic <= '0';
+        s_iShamt <= "10000"; -- Shift 16
+        -- Expected:
+        --  oResult = x"00010000"
+        wait for 100 ns;
+
+
+
     end process;
 
 end behavior;
