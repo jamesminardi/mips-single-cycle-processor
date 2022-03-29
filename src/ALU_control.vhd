@@ -38,9 +38,9 @@ signal s_oAction : std_logic_vector(ALU_OP_WIDTH - 1 downto 0);
 begin
     with iFunct select
         s_oAction <=
-        "0010" when "100000", -- Add
+        "0000" when "100000", -- Add
         "0010" when "100001", -- Add (U)
-        "0011" when "100010", -- Sub
+        "0001" when "100010", -- Sub
         "0011" when "100011", -- Sub (U)
         "0100" when "100100", -- And
         "0101" when "100101", -- Or
@@ -50,7 +50,7 @@ begin
         "1010" when "000010", -- SRL
         "1011" when "000011", -- SRA
         "1100" when "101010", -- SLT
-        "0000" when others;
+        "1111" when others;
     with iALUOp select
         oAction <=
         s_oAction when "0000", -- Funct if Opcode == "000000"

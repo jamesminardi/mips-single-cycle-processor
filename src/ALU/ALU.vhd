@@ -70,10 +70,14 @@ begin
     
     with iALUOp select
         s_overflow_control <=
-            '1' when "0010", -- add
-            '1' when "0011", -- sub
+            '1' when "0000", -- add
+            '1' when "0001", -- sub
             '0' when others;
 
+    with iALUOp select
+        s_shamt <=
+            "10000" when "1001",
+            iShamt when others;
 
     add_sub_C: add_sub
     port map(
@@ -89,13 +93,14 @@ begin
         iA => iB,
         iLeft => s_left_shift,
         iArithmetic => s_arithmetic,
-        iShamt => iShamt,
+        iShamt => s_shamt,
         oResult => s_barrel_shifter_result);
 
 
     
     -- Set overflow signal
     s_overflow <= s_cout XOR s_cout2;
+
     oOverflow <= s_overflow AND s_overflow_control;
     
     -- Set less than result using Overflow detect and result from (a-b)
