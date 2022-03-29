@@ -49,6 +49,20 @@ architecture behavior of fetch is
 			oResult      : out std_logic_vector(DATA_WIDTH-1 downto 0));
 	end component;
 	
+	component org2 is
+		port(i_A          : in std_logic;
+			 i_B          : in std_logic;
+			 o_F          : out std_logic);
+	  
+	  end component;
+
+	  component and2 is
+		port(i_A          : in std_logic;
+			 i_B          : in std_logic;
+			 o_F          : out std_logic);
+	  
+	  end component;
+	
     --add this section for the sigals and begin stuff
 signal s_PCPlus4 		: std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_BranchImmShift : std_logic_vector(DATA_WIDTH - 1 downto 0);
