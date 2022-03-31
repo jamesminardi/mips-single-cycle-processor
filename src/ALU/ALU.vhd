@@ -53,6 +53,7 @@ signal s_add_sub_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_overflow_control : std_logic;
 signal s_barrel_shifter_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_set_less_than_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
+-- signal s_movn_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_cout, s_cout2 : std_logic;
 
 signal s_left_shift : std_logic;
@@ -70,8 +71,8 @@ begin
     
     with iALUOp select
         s_overflow_control <=
-            '1' when "0000", -- add
-            '1' when "0001", -- sub
+            '1' when "0000", -- add ovfl
+            '1' when "0001", -- sub ovfl
             '0' when others;
 
     with iALUOp select
@@ -104,15 +105,21 @@ begin
     oOverflow <= s_overflow AND s_overflow_control;
     
     -- Set less than result using Overflow detect and result from (a-b)
-    s_set_less_than_result <= "0000000000000000000000000000000" & (s_add_sub_result(DATA_WIDTH - 1) XOR s_overflow);
+    s_set_less_than_result <= "0000000000000000000000000000000" & (s_add_sub_result(DATA_WIDTH - 1)); -- XOR s_overflow)
 
     -- Set carry out bit
     oCout <= s_cout;
 
+    -- with iB select
+    --     s_movn_result <=
+    --         (NOT iA) when x"00000000",
+    --         iA when others;
 
     -- Select ALU result
     with iALUOP select
         oResult <=
+        s_add_sub_result when "0000", -- add overflow
+        s_add_sub_result when "0001", -- sub overflow
         s_add_sub_result when "0010", -- add
         s_add_sub_result when "0011", -- sub
         iA AND iB when "0100",
@@ -125,12 +132,22 @@ begin
         s_barrel_shifter_result when "1010",
         s_barrel_shifter_result when "1011",
 
-        s_set_less_than_result when "1100",
-        s_set_less_than_result when "1101",
-        s_set_less_than_result when "1110",
-        s_set_less_than_result when "1111",
-        x"DEADBEEF" when others;
+        --s_set_less_than_result when "1100",
+        s_set_less_than_result when "1101",   -- Slt & Slti
+        --s_set_less_than_result when "1111",
+        
+        s_add_sub_result when "1110", -- Movn
+        
+        --x"DEADBEEF" when others;
+        s_add_sub_result when others;
     
+    --     -- TODOOOOO MOVN
+    -- -- Set zero bit
+    -- with s_movn_result select
+    --     s_movn_zero <=
+    --         '0' when iA,
+    --         '1' when others;
+
     -- Set zero bit
     with oResult select
         oZero <=
