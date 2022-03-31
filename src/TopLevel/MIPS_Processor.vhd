@@ -114,6 +114,7 @@ signal s_Cout : std_logic; -- Carry out from ALU
 signal s_Zero : std_logic; -- Zero signal from ALU
 signal s_PCPlus4 : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_ALUPreMovn : std_logic_vector(DATA_WIDTH - 1 downto 0);
+signal s_MovnZero : std_logic;
 
 	--------------------------  COMPONENTS  --------------------------
 	component pc_register is
@@ -334,10 +335,11 @@ begin
 			"11111" when "10",
 			s_instr_Rt when others;
 
-	-- Movn mux for regwrite (movn & !Zero) means Send RS to RD (Regwr = 1)
-	with (s_Movn AND (NOT s_Zero)) select
+
+	-- Selects reg write depending on if MOVN instruction is happening or not, otherwise use control RegWrite
+	with s_Movn select
 		s_RegWr <=
-			'1' when '1',
+			(NOT s_Zero) when '1',
 			s_RegWrite when others;
 			
 

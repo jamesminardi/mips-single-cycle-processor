@@ -50,6 +50,7 @@ begin
         "1010" when "000010", -- SRL
         "1011" when "000011", -- SRA
         "1101" when "101010", -- SLT
+        "1110" when "001011", -- MOVN
         "0000" when others;
     with iALUOp select
         oAction <=

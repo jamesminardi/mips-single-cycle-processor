@@ -53,7 +53,7 @@ signal s_add_sub_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_overflow_control : std_logic;
 signal s_barrel_shifter_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
 signal s_set_less_than_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
--- signal s_movn_result : std_logic_vector(DATA_WIDTH - 1 downto 0);
+signal s_movn_zero : std_logic;
 signal s_cout, s_cout2 : std_logic;
 
 signal s_left_shift : std_logic;
@@ -61,6 +61,7 @@ signal s_arithmetic : std_logic;
 signal s_shamt : std_logic_vector(DATA_SELECT - 1 downto 0);
 
 signal s_overflow : std_logic;
+signal s_ALUZero : std_logic;
 
 begin
 
@@ -110,10 +111,10 @@ begin
     -- Set carry out bit
     oCout <= s_cout;
 
-    -- with iB select
-    --     s_movn_result <=
-    --         (NOT iA) when x"00000000",
-    --         iA when others;
+    with iB select
+        s_movn_zero <=
+            '1' when x"00000000",
+            '0' when others;
 
     -- Select ALU result
     with iALUOP select
@@ -150,8 +151,13 @@ begin
 
     -- Set zero bit
     with oResult select
-        oZero <=
+        s_ALUZero <=
             '1' when x"00000000",
             '0' when others;
+
+    with iALUOP select
+        oZero <=
+            s_movn_zero when "1110",
+            s_ALUZero when others;
       
 end mixed;
