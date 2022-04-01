@@ -42,9 +42,12 @@ end control;
 architecture dataflow of control is
 
 signal s_JumpCheck : std_logic;
+signal s_JumpReg : std_logic;
 
     -- Doesn't include JAL & others
 begin
+
+
     with iOpcode select
         oRegDst <=
             "00" when "001000",  -- Addi
@@ -68,9 +71,15 @@ begin
             "01" when "100011", -- lw
             "10" when "000011",  -- jal
             "00" when others;
+
+    with (iOpcode & iFunct) select
+        s_JumpReg <=
+            '1' when "000000001000",
+            '0' when others;
+
     with iOpcode select
         oRegWrite <=
-        (NOT oJumpReg)  when "000000", -- R-type (Dont for JR)
+        (NOT s_JumpReg)  when "000000", -- R-type (Dont for JR)
             '1' when "001000", -- addi
             '1' when "001001", -- addiu
             '1' when "001100", -- andi
@@ -138,13 +147,10 @@ begin
             '0' when others;
 
     with (iOpcode & iFunct) select
-        oJumpReg <=
-            '1' when "000000001000",
-            '0' when others;
-
-    with (iOpcode & iFunct) select
         oMovn <=
             '1' when "000000001011",
             '0' when others;
-        
+    
+    oJumpReg <= s_JumpReg;
+
 end dataflow;
