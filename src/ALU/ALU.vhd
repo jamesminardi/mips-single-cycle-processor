@@ -62,6 +62,7 @@ signal s_shamt : std_logic_vector(DATA_SELECT - 1 downto 0);
 
 signal s_overflow : std_logic;
 signal s_ALUZero : std_logic;
+signal s_oResult : std_logic_vector(DATA_WIDTH - 1 downto 0);
 
 begin
 
@@ -118,7 +119,7 @@ begin
 
     -- Select ALU result
     with iALUOP select
-        oResult <=
+    s_oResult <=
         s_add_sub_result when "0000", -- add overflow
         s_add_sub_result when "0001", -- sub overflow
         s_add_sub_result when "0010", -- add
@@ -150,7 +151,7 @@ begin
     --         '1' when others;
 
     -- Set zero bit
-    with oResult select
+    with s_oResult select
         s_ALUZero <=
             '1' when x"00000000",
             '0' when others;
@@ -159,5 +160,7 @@ begin
         oZero <=
             s_movn_zero when "1110",
             s_ALUZero when others;
-      
+    
+    oResult <= s_oResult;
+
 end mixed;
