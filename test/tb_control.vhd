@@ -108,7 +108,7 @@ begin
     --  oJumpReg    = 0
     --  oBranch     = 0
     --  oBranchEQ   = x
-    --  oALUOp      = 0010
+    --  oALUOp      = 0000
     --  oHalt       = 0
     --  oSignExt    = 1
     wait for 100 ns;
@@ -300,7 +300,7 @@ begin
     --  oBranchEQ   = x
     --  oALUOp      = 0000
     --  oHalt       = 0
-    --  oSignExt    = 1
+    --  oSignExt    = x
     wait for 100 ns; 
 
 
