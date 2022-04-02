@@ -2,7 +2,6 @@
 .text
 .globl main
 main:
-# Needed still: andi movn
 
 addi $t0, $zero, -25	# $t0 = -25
 addiu $t0, $t0, 10		# $t0 = -15
