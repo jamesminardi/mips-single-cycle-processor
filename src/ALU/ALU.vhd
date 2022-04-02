@@ -107,7 +107,7 @@ begin
     oOverflow <= s_overflow AND s_overflow_control;
     
     -- Set less than result using Overflow detect and result from (a-b)
-    s_set_less_than_result <= "0000000000000000000000000000000" & (s_add_sub_result(DATA_WIDTH - 1)); -- XOR s_overflow)
+    s_set_less_than_result <= "0000000000000000000000000000000" & (s_add_sub_result(DATA_WIDTH - 1) XOR s_overflow); -- XOR s_overflow)
 
     -- Set carry out bit
     oCout <= s_cout;

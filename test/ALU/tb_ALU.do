@@ -13,3 +13,15 @@ vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/src/ALU/ALU.
 vcom -reportprogress 300 -work work ~/cpre381/cpre381-toolflow/proj/test/ALU/tb_ALU.vhd
 
 vsim work.tb_ALU -voptargs=+acc
+
+add wave -position insertpoint  \
+sim:/tb_alu/s_iA \
+sim:/tb_alu/s_iB \
+sim:/tb_alu/s_iShamt \
+sim:/tb_alu/s_iALUOp \
+sim:/tb_alu/s_oResult \
+sim:/tb_alu/s_oCout \
+sim:/tb_alu/s_oOverflow \
+sim:/tb_alu/s_oZero
+
+run 1400
