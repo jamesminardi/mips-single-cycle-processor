@@ -3,16 +3,16 @@
 .globl main
 main:
 
-addi $t0, $zero, -25	# $t0 = -25
-addiu $t0, $t0, 10		# $t0 = -15
-addu $t0, $t0, 3		# $t0 = -12
+addi $t0, $zero, -25	# $t0 = -25 (0xFFFFFFE7)
+addiu $t0, $t0, 10		# $t0 = -15 (0xFFFFFFF1)
+addu $t0, $t0, 3		# $t0 = -12 (0xFFFFFFF4)
 
-sub $t1, $zero, $t0		# $t1 = 12
-addi $t1, $t1, 5		# $t1 = 17
+sub $t1, $zero, $t0		# $t1 = 12 (0x0000000C)
+addi $t1, $t1, 5		# $t1 = 17 (0x00000011)
 
-sll $t0, $t0, 2			# $t0 = (-12 * 4) = -48
+sll $t0, $t0, 2			# $t0 = (-12 * 4) = -48 (0xFFFFFFD0)
 
-addi $t2, $zero, 20		# $t2 = 20
+addi $t2, $zero, 20		# $t2 = 20 (0x
 
 subu $t3, $t2, $t1		# $t3 = 3
 
@@ -39,6 +39,4 @@ movn $t0, $t3, $t2		# $t0 = $t3 (3)
 
 
 # Exit program
-li $v0, 10
-syscall
 halt
