@@ -129,16 +129,16 @@ begin
         oALUOp <=
             "1111" when "000000", -- Funct
             "0000" when "001000", -- addi
-            "0010" when "001001",
+            "0010" when "001001", -- addiu
             "0100" when "001100",
             "1001" when "001111", -- Lui
             "0010" when "100011",
             "0111" when "001110",
             "0101" when "001101",
             "1101" when "001010", -- Slti
-            "0010" when "101011",
-            "0011" when "000100",
-            "0011" when "000101",
+            "0010" when "101011", -- sw
+            "0011" when "000100", -- beq
+            "0011" when "000101", -- bne
             "----" when "000010", -- J
             "0000" when others;
     with iOpcode select
